@@ -13,6 +13,7 @@ class Spider():
         htmls = str(htmls,encoding="utf-8")
         return htmls
 
+
     def __analysis(self,htmls):
         root_html = re.findall(Spider.root_pattern,htmls)
         anchors = []
@@ -42,3 +43,6 @@ class Spider():
 
 spider = Spider()
 spider.go()
+
+
+print(123123)
