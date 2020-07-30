@@ -1,48 +1,48 @@
-import re
-from urllib import request
+import requests
+import json
+from pyquery import PyQuery
+
+
+import io
+import sys
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 
 class Spider():
-    url = "https://www.douyu.com/"
-    root_pattern = '<div class="video-info">([\s\S]*?)</div>'
-    name_pattern = '</i>([\s\S]*?)</span>'
-    number_pattern = '<span class="video-number">([\s\S]*?)</span>'
+
+    url = "https://www.hsehome.com/document/home"
 
     def __fetch_content(self):
-        r = request.urlopen(Spider.url)
-        htmls = r.read()
-        htmls = str(htmls,encoding="utf-8")
-        return htmls
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(Spider.url, headers=headers)
+        return response.text
 
 
     def __analysis(self,htmls):
-        root_html = re.findall(Spider.root_pattern,htmls)
-        anchors = []
-        for html in root_html:
-            name = re.findall(Spider.name_pattern,html)
-            number = re.findall(Spider.number_pattern,html)
-            anchor = {"name":name,"number":number}
-            anchors.append(anchor)
-        print(anchors[0])
-        return anchors
+        doc = PyQuery(htmls)
+        root_html = doc("div.doc-ls .doc-item.inB")
+        list = []
+        for item in root_html.items():
+            info = {}
+            info["title"] = item.find(".text-oh.title").text()
+            info["price"] = item.find(".price").text()
+            info["user"] = item.find(".inB.b-title.text-oh.middle.cur").text()
+            list.append(info)
+        print(list)
+        return list
 
-    def __sort(self,anchors):
-
-    def refine(self,anchors):
-        l = lambda anchor:{
-            "name":anchor[0].strip(),
-            'number':anchor[o]
-            }
-        return map(l,anchors)
+    def write_to_file(self, content):
+        # 写入文件
+        with open("data.txt", "a", encoding="utf-8") as f:
+            f.write(json.dumps(content, ensure_ascii=False) + "\n")
 
 
     def go(self):
-        self.__fetch_content()
-        anchors = self.__analysis(htmls)
-        anchors = list(self.refine(anchors))
-        print(anchors)
+        htmls = self.__fetch_content()
+        # print(htmls)
+        list = self.__analysis(htmls)
+        for item in list:
+            self.write_to_file(item)
+        # print(anchors)
 
 spider = Spider()
 spider.go()
-
-
-print(123123)
